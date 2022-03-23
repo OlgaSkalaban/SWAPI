@@ -1,8 +1,13 @@
+h2 {
+  margin-bottom: 1.5rem;
+  color: #ffc107;
+}
+
 .jumbotron {
   padding-top: 3rem;
   padding-bottom: 3rem;
-  margin-bottom: 0;
-  background-color: rgb(22, 22, 22);
+  margin-bottom: 0;  
+  background-color: #161616;
 }
 @media (min-width: 768px) {
   .jumbotron {
@@ -21,10 +26,33 @@
 }
 
 .jumbotron .container {
-  max-width: 40rem;
+  max-width: 40rem;  
+}
+
+.bg-dark {
+  background-color: #1a1a1a!important;
+}
+
+.btn-outline-secondary {
+  color: #f0f4f8;
+  border-color: #ffc107;
+}
+
+.card {
+  background-color: #1a1a1a;
+  border: 1px solid #ffc107;
+}
+
+.card-text {
+  color: #f0f4f8;
+}
+
+.pages {
+  padding-top: 3rem;
 }
 
 footer {
+  background-color: #161616;
   padding-top: 3rem;
   padding-bottom: 3rem;
 }
@@ -32,3 +60,13 @@ footer {
 footer p {
   margin-bottom: .25rem;
 }
+
+.text-muted {
+  color: #f0f4f8!important;
+}
+
+a, a:hover {
+  color:#ffc107;
+}
+
+
