@@ -101,6 +101,12 @@ a, a:hover {
   border-color:#1a1a1a
 }
 
+.page-link:focus {
+  z-index:3;
+  outline:0;
+  box-shadow:none;
+} 
+
 footer {
   background-color: #161616;
   padding-top: 3rem;

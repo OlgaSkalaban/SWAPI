@@ -238,7 +238,7 @@
                     <li class="page-item disabled">
                         <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
                     </li>
-                    <li id="active page" class="page-item active" aria-current="page">
+                    <li class="page-item active" aria-current="page">
                         <a id="1" class="page-link" href="#">1</a>
                     </li>
                     <li class="page-item">
@@ -306,19 +306,58 @@
         
             // showUserCard();
 
-            function turnPages() {
+            // function turnPages() {
                 
 
-            }
+            // }
 
             //переключение страниц
-            let pages = document.getElementById('pages');
+            let pages = document.getElementById('pages');            
+            
             pages.addEventListener('click', function(event) {
-                if (event.target.id != "1") {
-                   let activePage = document.querySelectorAll(':active')
-                   alert(activePage.id)
-
-                }  
+                let activePage = document.querySelector('.page-item.active');
+                
+                if (event.target.id === 'prev') {
+                    let newID = +activePage.firstElementChild.id - 1;
+                    if (newID !== 1) {
+                        activePage.classList.toggle('active');
+                        document.getElementById(newID).closest('li').classList.add('active');
+                    } else {
+                        activePage.classList.toggle('active');
+                        document.getElementById('prev').closest('li').classList.add('disabled');
+                        document.getElementById(newID).closest('li').classList.add('active');
+                    }
+                }
+                if (event.target.id === 'next') {
+                    let newID = +activePage.firstElementChild.id + 1;
+                    if (newID === 9) {
+                        activePage.classList.toggle('active');
+                        document.getElementById(newID).closest('li').classList.add('active');
+                        document.getElementById('next').closest('li').classList.add('disabled');
+                    } else {
+                        activePage.classList.toggle('active');
+                        document.getElementById(newID).closest('li').classList.add('active');
+                        document.getElementById('prev').closest('li').classList.remove('disabled');
+                    }             
+                }
+                if (event.target.id > '1' && event.target.id < '9') {
+                    document.getElementById('next').closest('li').classList.remove('disabled');
+                    activePage.classList.toggle('active');
+                    event.target.closest('li').classList.add('active');
+                    document.getElementById('prev').closest('li').classList.remove('disabled');
+                }
+                if (event.target.id === '9') {
+                    document.getElementById('prev').closest('li').classList.remove('disabled');
+                    activePage.classList.toggle('active');
+                    event.target.closest('li').classList.add('active');
+                    document.getElementById('next').closest('li').classList.add('disabled'); 
+                }
+                if (event.target.id === '1') {
+                    activePage.classList.toggle('active');
+                    event.target.closest('li').classList.add('active');
+                    document.getElementById('next').closest('li').classList.remove('disabled');
+                    document.getElementById('prev').closest('li').classList.add('disabled'); 
+                }
             });
 
 
