@@ -116,8 +116,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-            
+                    </div>            
                     <div class="col-md-3">
                         <div class="card mb-3 shadow-sm">
                             <a class="character-item" href="модальное окно"><img src="images/StarWars.jpg"></a>
@@ -156,8 +155,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-            
+                    </div>            
                     <div class="col-md-3">
                         <div class="card mb-3 shadow-sm">
                             <a class="character-item" href="модальное окно"><img src="images/StarWars.jpg"></a>
@@ -236,39 +234,39 @@
 
             <!-- Пагинация -->
             <nav aria-label="pagination" class="pages">
-                <ul class="pagination justify-content-center">
+                <ul id="pages" class="pagination justify-content-center">
                     <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
+                        <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
                     </li>
-                    <li class="page-item active" aria-current="page">
-                        <a class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">2</a>
+                    <li id="active page" class="page-item active" aria-current="page">
+                        <a id="1" class="page-link" href="#">1</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">3</a>
+                        <a id="2" class="page-link" href="#">2</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">4</a>
+                        <a id="3" class="page-link" href="#">3</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">5</a>
+                        <a id="4" class="page-link" href="#">4</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">6</a>
+                        <a id="5" class="page-link" href="#">5</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">7</a>
+                        <a id="6" class="page-link" href="#">6</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">8</a>
+                        <a id="7" class="page-link" href="#">7</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">9</a>
+                        <a id="8" class="page-link" href="#">8</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="#">NEXT</a>
+                        <a id="9" class="page-link" href="#">9</a>
+                    </li>
+                    <li class="page-item">
+                        <a id="next" class="page-link" href="#">NEXT</a>
                     </li>
                 </ul>
             </nav>
@@ -307,14 +305,28 @@
             // }
         
             // showUserCard();
-            
+
+            function turnPages() {
+                
+
+            }
+
+            //переключение страниц
+            let pages = document.getElementById('pages');
+            pages.addEventListener('click', function(event) {
+                if (event.target.id != "1") {
+                   let activePage = document.querySelectorAll(':active')
+                   alert(activePage.id)
+
+                }  
+            });
 
 
 
 
 
 
-            
+
         
         </script>
     </body>
