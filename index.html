@@ -77,8 +77,8 @@
         <div class="album py-5 bg-dark">
             <div class="container">
                 <h2>CHARACTERS</h2>   
-                <div class="row">
-                    <div class="col-md-3">
+                <div id="cards-list" class="row">
+                    <!-- <div class="col-md-3">
                         <div class="card mb-3 shadow-sm">
                             <a class="character-item" href="модальное окно"><img class='charcter_image' src="images/StarWars.jpg"></a>
                             <div class="card-body">
@@ -207,7 +207,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -235,7 +235,7 @@
             <!-- Пагинация -->
             <nav aria-label="pagination" class="pages">
                 <ul id="pages" class="pagination justify-content-center">
-                    <li class="page-item disabled">
+                    <!-- <li class="page-item disabled">
                         <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
                     </li>
                     <li class="page-item active" aria-current="page">
@@ -267,7 +267,7 @@
                     </li>
                     <li class="page-item">
                         <a id="next" class="page-link" href="#">NEXT</a>
-                    </li>
+                    </li> -->
                 </ul>
             </nav>
         </div>    
@@ -298,7 +298,7 @@
                 try {
                     const responsePage = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
                     const pageData = await responsePage.json();
-                                        
+                     //формирование элементов на странице --> добавить функцию создания html кода                   
                     for (let i = 0; i <= 9; i++) {
                         let userName = pageData.results[i].name;                        
                         let cardName = document.getElementById(`charcter${i+1}`);
@@ -308,63 +308,103 @@
                     alert(err)
                 }               
             }
+
+            function toggleActiveStatus(obj, id) {                
+                obj.classList.toggle('active');
+                document.getElementById(id).closest('li').classList.add('active');
+            }
+
+            // function init () {
+
+            // }
+
+            function savePageNumber(currentPageNumbID) {
+                localStorage.setItem('currentPageNumbID', JSON.stringify(currentPageNumbID));
+            }
+
+            async function setPageCount() {
+                try {
+                    const req = await fetch(`https://swapi.dev/api/people/`);
+                    const reqData = await req.json();
+                    let pageCount = Math.ceil(+reqData.count/10);
+                    //console.log(pageCount);
+                    localStorage.setItem('maxPageCount', JSON.stringify(pageCount)); 
+                } catch (error) {
+                    alert(error);
+                }
+            }
+
+            function showCards() {
+                `<div class="col-md-3">
+                        <div class="card mb-3 shadow-sm">
+                            <a class="character-item" href="модальное окно"><img class='charcter_image' src="images/StarWars.jpg"></a>
+                            <div class="card-body">
+                                <p id="charcter${i+1}" class="card-text"></p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a href="../SWAPI/characters/1.html" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#exampleModal">Details</a>
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+            }
+            
+            
+            
+            
+            //////  main //////
+            setPageCount();
+            let pagesCount = JSON.parse(localStorage.getItem('maxPageCount'));           
+
            
             //переключение страниц
-            let pages = document.getElementById('pages');            
-            // let activePage = document.querySelector('.page-item.active');
-            // let firstActivePage = +activePage.firstElementChild.id;
-            loadPageData(1);
-
+            let pages = document.getElementById('pages'); 
+                        
             pages.addEventListener('click', function(event) {
                 let activePage = document.querySelector('.page-item.active');
                 
                 if (event.target.id === 'prev') {
                     let newID = +activePage.firstElementChild.id - 1;
                     if (newID !== 1) {
-                        activePage.classList.toggle('active');
-                        document.getElementById(newID).closest('li').classList.add('active');
+                        toggleActiveStatus(activePage, newID);                        
                     } else {
-                        activePage.classList.toggle('active');
-                        document.getElementById('prev').closest('li').classList.add('disabled');
-                        document.getElementById(newID).closest('li').classList.add('active');
+                        toggleActiveStatus(activePage, newID);
+                        document.getElementById('prev').closest('li').classList.add('disabled');                        
                     }
                     loadPageData(newID);
+                    savePageNumber(newID);
                 }
                 if (event.target.id === 'next') {
                     let newID = +activePage.firstElementChild.id + 1;
-                    if (newID === 9) {
-                        activePage.classList.toggle('active');
-                        document.getElementById(newID).closest('li').classList.add('active');
+                    if (newID === pagesCount) {
+                        toggleActiveStatus(activePage, newID);
                         document.getElementById('next').closest('li').classList.add('disabled');
                     } else {
-                        activePage.classList.toggle('active');
-                        document.getElementById(newID).closest('li').classList.add('active');
+                        toggleActiveStatus(activePage, newID);
                         document.getElementById('prev').closest('li').classList.remove('disabled');
                     }
-                    loadPageData(newID);            
+                    loadPageData(newID);
+                    savePageNumber(newID);            
                 }
-                if (event.target.id > '1' && event.target.id < '9') {
-                    activePage.classList.toggle('active');
-                    event.target.closest('li').classList.add('active');
+                if (event.target.id > '1' && +event.target.id < pagesCount) {
+                    toggleActiveStatus(activePage, +event.target.id);
                     document.getElementById('next').closest('li').classList.remove('disabled');
                     document.getElementById('prev').closest('li').classList.remove('disabled');
                     loadPageData(+event.target.id);
                 }
-                if (event.target.id === '9') {
-                    activePage.classList.toggle('active');
-                    event.target.closest('li').classList.add('active');                    
+                if (+event.target.id === pagesCount) {
+                    toggleActiveStatus(activePage, +event.target.id);
                     document.getElementById('next').closest('li').classList.add('disabled');
                     document.getElementById('prev').closest('li').classList.remove('disabled');
                     loadPageData(+event.target.id); 
                 }
                 if (event.target.id === '1') {
-                    activePage.classList.toggle('active');
-                    event.target.closest('li').classList.add('active');
+                    toggleActiveStatus(activePage, +event.target.id);
                     document.getElementById('next').closest('li').classList.remove('disabled');
                     document.getElementById('prev').closest('li').classList.add('disabled');
                     loadPageData(+event.target.id); 
                 }
-                return 
             });
 
 
