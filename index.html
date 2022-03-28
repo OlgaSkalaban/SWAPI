@@ -235,39 +235,13 @@
             <!-- Пагинация -->
             <nav aria-label="pagination" class="pages">
                 <ul id="pages" class="pagination justify-content-center">
-                    <!-- <li class="page-item disabled">
+                    <li class="page-item disabled">
                         <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
                     </li>
-                    <li class="page-item active" aria-current="page">
-                        <a id="1" class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="2" class="page-link" href="#">2</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="3" class="page-link" href="#">3</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="4" class="page-link" href="#">4</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="5" class="page-link" href="#">5</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="6" class="page-link" href="#">6</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="7" class="page-link" href="#">7</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="8" class="page-link" href="#">8</a>
-                    </li>
-                    <li class="page-item">
-                        <a id="9" class="page-link" href="#">9</a>
-                    </li>
+                    
                     <li class="page-item">
                         <a id="next" class="page-link" href="#">NEXT</a>
-                    </li> -->
+                    </li>
                 </ul>
             </nav>
         </div>    
@@ -295,69 +269,87 @@
         <script>
             "use strict"
             async function loadPageData(pageNumb) {
+                usersInfo.length = 0;
                 try {
                     const responsePage = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
-                    const pageData = await responsePage.json();
-                     //формирование элементов на странице --> добавить функцию создания html кода                   
-                    for (let i = 0; i <= 9; i++) {
-                        let userName = pageData.results[i].name;                        
-                        let cardName = document.getElementById(`charcter${i+1}`);
-                        cardName.textContent = userName
+                    const pageData = await responsePage.json(); 
+                    console.log('Данные получены')           
+                    for (let i = 0; i <= pageData.results.length-1; i++) {
+                        usersInfo.push(pageData.results[i]);
                     }
+                    showCards();           
                 } catch(err) {
                     alert(err)
-                }               
+                }                       
             }
 
             function toggleActiveStatus(obj, id) {                
                 obj.classList.toggle('active');
                 document.getElementById(id).closest('li').classList.add('active');
             }
-
-            // function init () {
-
-            // }
-
+            
             function savePageNumber(currentPageNumbID) {
                 localStorage.setItem('currentPageNumbID', JSON.stringify(currentPageNumbID));
             }
 
             async function setPageCount() {
                 try {
-                    const req = await fetch(`https://swapi.dev/api/people/`);
+                    const req = await fetch('https://swapi.dev/api/people/');
                     const reqData = await req.json();
                     let pageCount = Math.ceil(+reqData.count/10);
                     //console.log(pageCount);
                     localStorage.setItem('maxPageCount', JSON.stringify(pageCount)); 
+                    for (let i = 1; i <= pageCount; i++) {
+                        pageList.push(`<li class="page-item"><a id="${i}" class="page-link" href="#">${i}</a></li>`);
+                    }
+                    let str = pageList.join('');
+                    prevPage.after(str);
                 } catch (error) {
                     alert(error);
                 }
             }
 
             function showCards() {
-                `<div class="col-md-3">
-                        <div class="card mb-3 shadow-sm">
-                            <a class="character-item" href="модальное окно"><img class='charcter_image' src="images/StarWars.jpg"></a>
-                            <div class="card-body">
-                                <p id="charcter${i+1}" class="card-text"></p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="btn-group">
-                                        <a href="../SWAPI/characters/1.html" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#exampleModal">Details</a>
-                                    </div>                                
-                                </div>
+                let cardsList = document.getElementById('cards-list');
+                cardsList.innerHTML = '';
+
+                cardsList.innerHTML = usersInfo.map(elem => `
+                <div class="col-md-3">
+                    <div class="card mb-3 shadow-sm">
+                        <a class="character-item" href="модальное окно"><img class='charcter_image' src="images/StarWars.jpg"></a>
+                        <div class="card-body">
+                            <p class="card-text">${elem.name}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="../SWAPI/characters/1.html" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#exampleModal">Details</a>
+                                </div>                                
                             </div>
                         </div>
-                    </div>`
+                    </div>
+                </div>`).join('');                
             }
             
-            
-            
+            function init() {
+                if (localStorage.getItem('currentPageNumbID')) {
+                    id = localStorage.getItem('currentPageNumbID');
+                    loadPageData(id);
+                } else {
+                    loadPageData(1);
+                }
+            }          
             
             //////  main //////
+            let usersInfo = [];
+            let pageList = [];
+            let prevPage = document.getElementById('prev').closest('li');
+            let cardsList = document.getElementById('cards-list');
+            let exampleModal = document.getElementById("exampleModal");
+            let id = '';
+            
+            init();
             setPageCount();
             let pagesCount = JSON.parse(localStorage.getItem('maxPageCount'));           
-
-           
+                       
             //переключение страниц
             let pages = document.getElementById('pages'); 
                         
@@ -384,7 +376,7 @@
                         toggleActiveStatus(activePage, newID);
                         document.getElementById('prev').closest('li').classList.remove('disabled');
                     }
-                    loadPageData(newID);
+                    loadPageData(newID);                    
                     savePageNumber(newID);            
                 }
                 if (event.target.id > '1' && +event.target.id < pagesCount) {
@@ -392,18 +384,21 @@
                     document.getElementById('next').closest('li').classList.remove('disabled');
                     document.getElementById('prev').closest('li').classList.remove('disabled');
                     loadPageData(+event.target.id);
+                    savePageNumber(+event.target.id); 
                 }
                 if (+event.target.id === pagesCount) {
                     toggleActiveStatus(activePage, +event.target.id);
                     document.getElementById('next').closest('li').classList.add('disabled');
                     document.getElementById('prev').closest('li').classList.remove('disabled');
-                    loadPageData(+event.target.id); 
+                    loadPageData(+event.target.id);
+                    savePageNumber(+event.target.id);  
                 }
                 if (event.target.id === '1') {
                     toggleActiveStatus(activePage, +event.target.id);
                     document.getElementById('next').closest('li').classList.remove('disabled');
                     document.getElementById('prev').closest('li').classList.add('disabled');
-                    loadPageData(+event.target.id); 
+                    loadPageData(+event.target.id);
+                    savePageNumber(+event.target.id); 
                 }
             });
 
