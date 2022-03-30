@@ -92,7 +92,7 @@
                             </button>
                         </div>
                         <div id="modalBody" class="modal-body">
-                        
+
                         </div>
                         <!-- <div class="modal-footer">
                             <button type="button" class="btn btn-warning" data-dismiss="modal">Закрыть</button>
@@ -209,49 +209,89 @@
                 }
             } 
             
-            async function getUserData(pageNumb, userID) {
+            async function getUserData(userID) {
                 let cardBody = document.getElementById('modalBody');
-                cardBody.innerHTML = '';
                 try {
-                    const serverRequest = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
-                    const userData = await serverRequest.json();
-                    
-                    let modalUserName = document.getElementById('exampleModalLabel');
-                    let user = userData.results[+userID];
-                    modalUserName.textContent = user.name;
-
                     //получение Наименования планеты по url
-                    let planetReq = await fetch(user.homeworld);
-                    let planet = await planetReq.json();
-                    //вид/раса
-                    let species = '';
-                    if (user.species.length === '0') {
-                        species = 'n/a';
-                        alert('нет вида')
-                    } else {
-                        console.log(user.species[0]);
-                        let specReq = await fetch(user.species[0]);                        
-                        let species = await specReq.json();
-                        console.log(species.name, species.classification,species.designation)
+                    let planetReq = await fetch(usersInfo[userID].homeworld);
+                    if (planetReq.ok) {
+                        let planet = await planetReq.json();
+                        console.log(planet.name)
+                        let p = document.createElement('p');
+                        p.textContent = `Planet: ${planet.name}`;
+                        cardBody.append(p);
+                        //usersInfo[userID].homeworld = planet.name;                        
                     }
-                    
-                    let cardBody = document.getElementById('modalBody');
-                    cardBody.innerHTML = `
-                    <p>Год рождения: ${user.birth_year}</p>
-                    <p>Вид: ${species.name}, ${species.classification}, ${species.designation}</p>
-                    <p>Пол: ${user.gender}</p>
-                    <p>Планета: ${planet.name}</p>
-                    <p>Рост: ${user.height}</p>
-                    <p>Вес: ${user.mass}</p>
-                    <p>Цвет: ${user.skin_color}</p>
-                    <p>Цвет волос: ${user.hair_color}</p>
-                    <p>Цвет глаз: ${user.eye_color}</p>
-                    <p>Звёздный корабль: ${user.starships}</p>
-                    <p>Корабль: ${user.vehicles}</p>
-                    <p>Films: ${user.films}</p>
-                    `                    
                 } catch (error) {
-                    console.error(error);
+                    alert(error)
+                }
+                
+                //вид/раса                
+                if (usersInfo[userID].species.length === 0) {
+                    usersInfo[userID].species = 'неизвестно';
+                } else {
+                    let specReq = await fetch(usersInfo[userID].species[0]);
+                    if (specReq.ok) {
+                        let species = await specReq.json();
+                        usersInfo[userID].species = species.name+', '+species.classification+', '+species.designation;
+                        let p = document.createElement('p');
+                        p.textContent = `Species: ${usersInfo[userID].species}`;
+                        cardBody.append(p);
+                    }                      
+                }
+
+                //films
+                if (usersInfo[userID].films.length === 0) {
+                    usersInfo[userID].films = 'неизвестно';
+                } else {
+                    //console.log("Фильмов: ", usersInfo[userID].films.length);
+                    let filmReq = usersInfo[userID].films.map(film => fetch(film));
+                    Promise.all(filmReq)
+                    .then(respFilms => Promise.all(respFilms.map(elem => elem.json())))
+                    .then(function(filmsNames) {
+                        let arr = filmsNames.map(i => `StarWars. Episode ${i.episode_id}. ${i.title}`);
+                        usersInfo[userID].films = arr.join(',');
+                        //console.log(usersInfo[userID].films)
+                        let p = document.createElement('p');
+                        p.textContent = `Films: ${usersInfo[userID].films}`;
+                        cardBody.append(p);           
+                    }); 
+                }
+
+                //starships
+                if (usersInfo[userID].starships.length === 0) {
+                    usersInfo[userID].starships = 'неизвестно';
+                } else {
+                    console.log("Звездные корабли: ", usersInfo[userID].starships.length);
+                    let ssReq = usersInfo[userID].starships.map(ss => fetch(ss));
+                    Promise.all(ssReq)
+                    .then(respSS => Promise.all(respSS.map(elem => elem.json())))
+                    .then(function(ssNames) {
+                        let arr = ssNames.map(el => `${el.name} / model ${el.model} / class ${el.starship_class}`);
+                        usersInfo[userID].starships = arr.join(',');
+                        let p = document.createElement('p');
+                        p.textContent = `Starships: ${usersInfo[userID].starships}`;
+                        cardBody.append(p);
+                        console.log(usersInfo[userID].starships)           
+                    }); 
+                }
+
+                //vehicles
+                if (usersInfo[userID].vehicles.length === 0) {
+                    usersInfo[userID].vehicles = 'неизвестно';
+                } else {
+                    console.log("Транспорт: ", usersInfo[userID].vehicles.length);
+                    let vReq = usersInfo[userID].vehicles.map(v => fetch(v));
+                    Promise.all(vReq)
+                    .then(respV => Promise.all(respV.map(elem => elem.json())))
+                    .then(function(vNames) {
+                        let arr = vNames.map(el => `${el.name} / model ${el.model} / class ${el.vehicle_class}`);
+                        usersInfo[userID].vehicles = arr.join(',');
+                        let p = document.createElement('p');
+                        p.textContent = `Vehicles: ${usersInfo[userID].vehicles}`;
+                        cardBody.append(p);
+                        console.log(usersInfo[userID].vehicles)           
+                    }); 
                 }
             }
             
@@ -321,9 +361,29 @@
                 if (event.target.id = 'btnDeatails') {
                     let btnID = event.target.closest('div').getAttribute('data-id');
                     let pageNumber = localStorage.getItem('currentPageNumbID');
-                    getUserData(pageNumber, btnID);
+                    let cardBody = document.getElementById('modalBody');
+                    getUserData(btnID);
+                                       
+                    
+                    let modalUserName = document.getElementById('exampleModalLabel'); 
+                    //console.log(usersInfo[userID])                  
+                    modalUserName.textContent = usersInfo[btnID].name;
+                    cardBody.innerHTML = '';
+                    
+                    cardBody.innerHTML = `
+                    <p>Birth year: ${usersInfo[btnID].birth_year}</p>
+                    <p>Gender: ${usersInfo[btnID].gender}</p>
+                    <p>Skin color: ${usersInfo[btnID].skin_color}</p>
+                    <p>Eye color: ${usersInfo[btnID].eye_color}</p>
+                    <p>Hair color: ${usersInfo[btnID].hair_color}</p>
+                    <p>Height: ${usersInfo[btnID].height}</p>
+                    <p>Mass: ${usersInfo[btnID].mass}</p>
+                    `
                 }                
-            });        
+            });
+                           
+                
+
         </script>
     </body>
 </html>
