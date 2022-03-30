@@ -1,6 +1,10 @@
 h2 {
   margin-bottom: 1.5rem;
-  color: #ffc107;
+  color: #f0d725;
+}
+
+h5 {
+  color: #f0d725;
 }
 
 .jumbotron {
@@ -18,13 +22,13 @@ h2 {
 
 .form-control {
   background-color: #1a1a1a;
-  border: 1px solid #ffc107;
+  border: 1px solid #f0d725;
 }
 
 .form-control:focus {
   color: #495057;
   background-color: #1a1a1a;
-  border-color: #ffc107;
+  border-color: #f0d725;
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(255, 217, 0, 0.5);
 } 
@@ -35,7 +39,7 @@ h2 {
 
 .jumbotron h1 {
   font-weight: 300;
-  color: #ffc107;
+  color: #f0d725;
 }
 
 .jumbotron .container {
@@ -43,7 +47,7 @@ h2 {
 }
 
 a, a:hover {
-  color:#ffc107;
+  color:#f0d725;
 }
 
 .bg-dark {
@@ -63,7 +67,7 @@ a, a:hover {
 
 .card {
   background-color: #1a1a1a;
-  border: 1px solid #ffc107;
+  border: 1px solid #f0d725;
 }
 
 .card-text {
@@ -79,24 +83,24 @@ a, a:hover {
 }
 
 .page-link {
-  color: #ffc107;
+  color: #f0d725;
   background-color: #1a1a1a;
   border: 0.5px solid #1a1a1a;
 }
 
 .page-link:hover { 
   z-index:2;
-  color:#ffc107;
+  color:#f0d725;
   text-decoration:none;
   background-color:#1a1a1a;
-  border-color:#ffc107;
+  border-color:#f0d725;
 }
 
 .page-item.active .page-link {
   z-index: 3;
   color: #000000;
-  background-color: #ffc107;
-  border-color: #ffc107;
+  background-color: #f0d725;
+  border-color: #f0d725;
 }
 
 .page-item.disabled .page-link 
@@ -112,6 +116,36 @@ a, a:hover {
   outline:0;
   box-shadow:none;
 } 
+
+.modal-content {
+  background-color:#161616;
+  border:1px solid #f0d725;  
+}
+
+.modal-header {
+  border-bottom:1px solid #161616;
+}
+
+.modal-body {
+  color:#f0d725;
+}
+
+/* .modal-footer {
+  border-top:1px solid #161616;
+} */
+
+.close {
+  float:right;
+  font-size:1.5rem;
+  font-weight:700;
+  line-height:1;
+  color:#f0d725;
+  text-shadow:0 1px 0 #ffffff;
+}
+.close:hover {
+  color:#f0d725;
+  text-decoration:none
+}
 
 footer {
   background-color: #161616;
@@ -131,7 +165,7 @@ footer p {
   text-align: center;  
   text-transform: uppercase;
   font-size: 20px;
-  color: #ffc107;
+  color: #f0d725;
   line-height: 1.563;
   margin-bottom: 10px;  
 }
@@ -154,11 +188,11 @@ footer p {
 }
 
 .footer__item:hover {
-  background-color: #ffc107;
+  background-color: #f0d725;
 }
 
 .footer__item a {
-  color: #ffc107;
+  color: #f0d725;
   font-size: 22px;
   text-align: center;
 }

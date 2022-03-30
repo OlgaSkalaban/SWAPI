@@ -86,17 +86,17 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Имя персонажа</h5>
+                            <h5 class="modal-title" id="exampleModalLabel"></h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div class="modal-body">
-                        ...
+                        <div id="modalBody" class="modal-body">
+                        
                         </div>
-                        <div class="modal-footer">
+                        <!-- <div class="modal-footer">
                             <button type="button" class="btn btn-warning" data-dismiss="modal">Закрыть</button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -134,7 +134,9 @@
                 usersInfo.length = 0;
                 try {
                     const responsePage = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
-                    const pageData = await responsePage.json(); 
+                    const pageData = await responsePage.json();
+                    const pageCount = Math.ceil(+pageData.count/10);
+                    localStorage.setItem('maxPageCount', JSON.stringify(pageCount)); 
                     for (let i = 0; i <= pageData.results.length-1; i++) {
                         usersInfo.push(pageData.results[i]);
                     }
@@ -153,34 +155,26 @@
                 localStorage.setItem('currentPageNumbID', JSON.stringify(currentPageNumbID));
             }
 
-            async function setPageList() {
-                try {
-                    const req = await fetch('https://swapi.dev/api/people/');
-                    const reqData = await req.json();
-                    let pageCount = Math.ceil(+reqData.count/10);
-                    
-                    localStorage.setItem('maxPageCount', JSON.stringify(pageCount)); 
-                    for (let i = 1; i <= pageCount; i++) {
-                        pageList.push(`
-                        <li class="page-item">
-                            <a id="${i}" class="page-link" href="#">${i}</a>
-                        </li>`);
-                    };
+            function setPageList() {
+                let pageCount = JSON.parse(localStorage.getItem('maxPageCount'));
+                for (let i = 1; i <= pageCount; i++) {
                     pageList.push(`
                     <li class="page-item">
-                        <a id="next" class="page-link" href="#">NEXT</a>
-                    </li>`);
-                    pageList.unshift(`
-                    <li class="page-item disabled">
-                        <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
-                    </li>`);
+                        <a id="${i}" class="page-link" href="#">${i}</a>
+                    </li>`);    
+                };
+                pageList.push(`
+                <li class="page-item">
+                    <a id="next" class="page-link" href="#">NEXT</a>
+                </li>`);
+                pageList.unshift(`
+                <li class="page-item disabled">
+                    <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
+                </li>`);
 
-                    let str = pageList.join('');
-                    pages.innerHTML = str;
-                    init();
-                } catch (error) {
-                    alert(error);
-                }
+                let str = pageList.join('');
+                pages.innerHTML = str;
+                init();                
             }
 
             function showCards() {
@@ -194,7 +188,7 @@
                         <div class="card-body">
                             <p class="card-text">${elem.name}</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
+                                <div class="btn-group" data-id="${usersInfo.indexOf(elem)}">
                                     <a id='btnDetails' class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#exampleModal">Details</a>
                                 </div>                                
                             </div>
@@ -213,15 +207,60 @@
                     loadPageData(1);
                     document.getElementById('1').closest('li').classList.add('active');
                 }
-            }          
+            } 
+            
+            async function getUserData(pageNumb, userID) {
+                let cardBody = document.getElementById('modalBody');
+                cardBody.innerHTML = '';
+                try {
+                    const serverRequest = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
+                    const userData = await serverRequest.json();
+                    
+                    let modalUserName = document.getElementById('exampleModalLabel');
+                    let user = userData.results[+userID];
+                    modalUserName.textContent = user.name;
+
+                    //получение Наименования планеты по url
+                    let planetReq = await fetch(user.homeworld);
+                    let planet = await planetReq.json();
+                    //вид/раса
+                    let species = '';
+                    if (user.species.length === '0') {
+                        species = 'n/a';
+                        alert('нет вида')
+                    } else {
+                        console.log(user.species[0]);
+                        let specReq = await fetch(user.species[0]);                        
+                        let species = await specReq.json();
+                        console.log(species.name, species.classification,species.designation)
+                    }
+                    
+                    let cardBody = document.getElementById('modalBody');
+                    cardBody.innerHTML = `
+                    <p>Год рождения: ${user.birth_year}</p>
+                    <p>Вид: ${species.name}, ${species.classification}, ${species.designation}</p>
+                    <p>Пол: ${user.gender}</p>
+                    <p>Планета: ${planet.name}</p>
+                    <p>Рост: ${user.height}</p>
+                    <p>Вес: ${user.mass}</p>
+                    <p>Цвет: ${user.skin_color}</p>
+                    <p>Цвет волос: ${user.hair_color}</p>
+                    <p>Цвет глаз: ${user.eye_color}</p>
+                    <p>Звёздный корабль: ${user.starships}</p>
+                    <p>Корабль: ${user.vehicles}</p>
+                    <p>Films: ${user.films}</p>
+                    `                    
+                } catch (error) {
+                    console.error(error);
+                }
+            }
             
             //////  main //////
             let usersInfo = [];
             let pageList = [];
             let pages = document.getElementById('pages');
             let cardsList = document.getElementById('cards-list');
-            let exampleModal = document.getElementById("exampleModal");
-            
+            let exampleModal = document.getElementById("exampleModal");            
             
             setPageList();
                 
@@ -280,15 +319,11 @@
             //нажатие кнопки Details
             cardsList.addEventListener('click', function(e) {
                 if (event.target.id = 'btnDeatails') {
-                    console.log(event.target.closest('').textContent);
-                }
-                
-            });
-
-            //previousElementSibling
-
-
-        
+                    let btnID = event.target.closest('div').getAttribute('data-id');
+                    let pageNumber = localStorage.getItem('currentPageNumbID');
+                    getUserData(pageNumber, btnID);
+                }                
+            });        
         </script>
     </body>
 </html>
