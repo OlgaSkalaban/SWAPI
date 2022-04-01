@@ -94,9 +94,6 @@
                         <div id="modalBody" class="modal-body">
 
                         </div>
-                        <!-- <div class="modal-footer">
-                            <button type="button" class="btn btn-warning" data-dismiss="modal">Закрыть</button>
-                        </div> -->
                     </div>
                 </div>
             </div>
@@ -130,33 +127,9 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>   
         <script>
             "use strict"
-            async function loadPageData(pageNumb) {
-                usersInfo.length = 0;
-                try {
-                    const responsePage = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
-                    const pageData = await responsePage.json();
-                    const pageCount = Math.ceil(+pageData.count/10);
-                    localStorage.setItem('maxPageCount', JSON.stringify(pageCount)); 
-                    for (let i = 0; i <= pageData.results.length-1; i++) {
-                        usersInfo.push(pageData.results[i]);
-                    }
-                    showCards();           
-                } catch(err) {
-                    alert(err)
-                }                       
-            }
-
-            function toggleActiveStatus(obj, id) {                
-                obj.classList.toggle('active');
-                document.getElementById(id).closest('li').classList.add('active');
-            }
-            
-            function savePageNumber(currentPageNumbID) {
-                localStorage.setItem('currentPageNumbID', JSON.stringify(currentPageNumbID));
-            }
-
-            function setPageList() {
-                let pageCount = JSON.parse(localStorage.getItem('maxPageCount'));
+            //отрисовка элемента нумерации страниц
+            function printPagesElement(pageCount) {
+                //let pageCount = JSON.parse(localStorage.getItem('maxPageCount'));               
                 for (let i = 1; i <= pageCount; i++) {
                     pageList.push(`
                     <li class="page-item">
@@ -173,8 +146,32 @@
                 </li>`);
 
                 let str = pageList.join('');
-                pages.innerHTML = str;
-                init();                
+                pages.innerHTML = str;               
+            }
+            
+            async function loadPageData(pageNumb) {
+                cardsList.innerHTML = '';
+                usersInfo.length = 0;
+                try {
+                    const responsePage = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
+                    const pageData = await responsePage.json();
+                    const pageCount = Math.ceil(+pageData.count/10);
+                    localStorage.setItem('maxPageCount', JSON.stringify(pageCount)); 
+                    usersInfo = pageData.results; 
+                    showCards();                               
+                } catch(err) {
+                    alert(err)
+                }
+
+            }
+
+            function toggleActiveStatus(obj, id) {                
+                obj.classList.toggle('active');
+                document.getElementById(id).closest('li').classList.add('active');
+            }
+            
+            function savePageNumber(currentPageNumb) {
+                localStorage.setItem('currentPageNumb', JSON.stringify(currentPageNumb));
             }
 
             function showCards() {
@@ -198,17 +195,12 @@
             }
             
             function init() {
-                if (localStorage.getItem('currentPageNumbID')) {
-                    let id = localStorage.getItem('currentPageNumbID'); 
-                    //alert(typeof(id));                   
-                    loadPageData(id);                    
-                    document.getElementById(id).closest('li').classList.add('active');
-                } else {                    
-                    loadPageData(1);
-                    document.getElementById('1').closest('li').classList.add('active');
-                }
+                let pageNum = JSON.parse(localStorage.getItem('maxPageCount'));
+                alert(typeof(pageNum));
+                loadPageData(pageNum);
+                
             } 
-            
+
             async function getUserData(userID) {
                 let cardBody = document.getElementById('modalBody');
                 try {
@@ -216,157 +208,171 @@
                     let planetReq = await fetch(usersInfo[userID].homeworld);
                     if (planetReq.ok) {
                         let planet = await planetReq.json();
-                        console.log(planet.name)
+                        //console.log(planet.name)
                         let p = document.createElement('p');
                         p.textContent = `Planet: ${planet.name}`;
-                        cardBody.append(p);
-                        //usersInfo[userID].homeworld = planet.name;                        
+                        cardBody.append(p);                    
                     }
                 } catch (error) {
                     alert(error)
                 }
                 
-                //вид/раса                
-                if (usersInfo[userID].species.length === 0) {
-                    usersInfo[userID].species = 'неизвестно';
-                } else {
-                    let specReq = await fetch(usersInfo[userID].species[0]);
-                    if (specReq.ok) {
-                        let species = await specReq.json();
-                        usersInfo[userID].species = species.name+', '+species.classification+', '+species.designation;
-                        let p = document.createElement('p');
-                        p.textContent = `Species: ${usersInfo[userID].species}`;
-                        cardBody.append(p);
-                    }                      
-                }
-
+                //вид/раса 
+                try {
+                    if (usersInfo[userID].species.length === 0) {
+                        usersInfo[userID].species = 'неизвестно';
+                    } else {
+                        let specReq = await fetch(usersInfo[userID].species[0]);
+                        if (specReq.ok) {
+                            let species = await specReq.json();
+                            usersInfo[userID].species = species.name+', '+species.classification+', '+species.designation;
+                            let p = document.createElement('p');
+                            p.textContent = `Species: ${usersInfo[userID].species}`;
+                            cardBody.append(p);
+                        }                      
+                    }                    
+                } catch (error) {
+                    alert(error)
+                }               
+                
                 //films
-                if (usersInfo[userID].films.length === 0) {
-                    usersInfo[userID].films = 'неизвестно';
-                } else {
-                    //console.log("Фильмов: ", usersInfo[userID].films.length);
-                    let filmReq = usersInfo[userID].films.map(film => fetch(film));
-                    Promise.all(filmReq)
-                    .then(respFilms => Promise.all(respFilms.map(elem => elem.json())))
-                    .then(function(filmsNames) {
-                        let arr = filmsNames.map(i => `StarWars. Episode ${i.episode_id}. ${i.title}`);
-                        usersInfo[userID].films = arr.join(',');
-                        //console.log(usersInfo[userID].films)
-                        let p = document.createElement('p');
-                        p.textContent = `Films: ${usersInfo[userID].films}`;
-                        cardBody.append(p);           
-                    }); 
+                try {
+                    if (usersInfo[userID].films.length === 0) {
+                        usersInfo[userID].films = 'неизвестно';
+                    } else {
+                        //console.log("Фильмов: ", usersInfo[userID].films.length);
+                        let filmReq = usersInfo[userID].films.map(film => fetch(film));
+                        Promise.all(filmReq)
+                        .then(respFilms => Promise.all(respFilms.map(elem => elem.json())))
+                        .then(function(filmsNames) {
+                            let arr = filmsNames.map(i => `StarWars. Episode ${i.episode_id}. ${i.title}`);
+                            usersInfo[userID].films = arr.join(',');
+                            //console.log(usersInfo[userID].films)
+                            //do by list --> ul > li
+                            let p = document.createElement('p');
+                            p.textContent = `Films: ${usersInfo[userID].films}`;
+                            cardBody.append(p);           
+                        }); 
+                    }                    
+                } catch (error) {
+                    alert(error)
                 }
 
                 //starships
-                if (usersInfo[userID].starships.length === 0) {
-                    usersInfo[userID].starships = 'неизвестно';
-                } else {
-                    console.log("Звездные корабли: ", usersInfo[userID].starships.length);
-                    let ssReq = usersInfo[userID].starships.map(ss => fetch(ss));
-                    Promise.all(ssReq)
-                    .then(respSS => Promise.all(respSS.map(elem => elem.json())))
-                    .then(function(ssNames) {
-                        let arr = ssNames.map(el => `${el.name} / model ${el.model} / class ${el.starship_class}`);
-                        usersInfo[userID].starships = arr.join(',');
-                        let p = document.createElement('p');
-                        p.textContent = `Starships: ${usersInfo[userID].starships}`;
-                        cardBody.append(p);
-                        console.log(usersInfo[userID].starships)           
-                    }); 
+                try {
+                    if (usersInfo[userID].starships.length === 0) {
+                        usersInfo[userID].starships = 'неизвестно';
+                    } else {
+                        //console.log("Звездные корабли: ", usersInfo[userID].starships.length);
+                        let ssReq = usersInfo[userID].starships.map(ss => fetch(ss));
+                        Promise.all(ssReq)
+                        .then(respSS => Promise.all(respSS.map(elem => elem.json())))
+                        .then(function(ssNames) {
+                            let arr = ssNames.map(el => `${el.name} / model ${el.model} / class ${el.starship_class}`);
+                            usersInfo[userID].starships = arr.join(',');
+                            let p = document.createElement('p');
+                            p.textContent = `Starships: ${usersInfo[userID].starships}`;
+                            cardBody.append(p);
+                            //console.log(usersInfo[userID].starships)           
+                        }); 
+                    }                    
+                } catch (error) {
+                    alert(error)
                 }
 
                 //vehicles
-                if (usersInfo[userID].vehicles.length === 0) {
-                    usersInfo[userID].vehicles = 'неизвестно';
-                } else {
-                    console.log("Транспорт: ", usersInfo[userID].vehicles.length);
-                    let vReq = usersInfo[userID].vehicles.map(v => fetch(v));
-                    Promise.all(vReq)
-                    .then(respV => Promise.all(respV.map(elem => elem.json())))
-                    .then(function(vNames) {
-                        let arr = vNames.map(el => `${el.name} / model ${el.model} / class ${el.vehicle_class}`);
-                        usersInfo[userID].vehicles = arr.join(',');
-                        let p = document.createElement('p');
-                        p.textContent = `Vehicles: ${usersInfo[userID].vehicles}`;
-                        cardBody.append(p);
-                        console.log(usersInfo[userID].vehicles)           
-                    }); 
+                try {
+                    if (usersInfo[userID].vehicles.length === 0) {
+                        usersInfo[userID].vehicles = 'неизвестно';
+                    } else {
+                        //console.log("Транспорт: ", usersInfo[userID].vehicles.length);
+                        let vReq = usersInfo[userID].vehicles.map(v => fetch(v));
+                        Promise.all(vReq)
+                        .then(respV => Promise.all(respV.map(elem => elem.json())))
+                        .then(function(vNames) {
+                            let arr = vNames.map(el => `${el.name} / model ${el.model} / class ${el.vehicle_class}`);
+                            usersInfo[userID].vehicles = arr.join(',');
+                            let p = document.createElement('p');
+                            p.textContent = `Vehicles: ${usersInfo[userID].vehicles}`;
+                            cardBody.append(p);
+                            //console.log(usersInfo[userID].vehicles)           
+                        }); 
+                    }                    
+                } catch (error) {
+                    alert(error)
                 }
             }
             
             //////  main //////
+
             let usersInfo = [];
-            let pageList = [];
+            let pageList = []; // нужен для отрисовки страничек
             let pages = document.getElementById('pages');
+            let pageNum;
             let cardsList = document.getElementById('cards-list');
             let exampleModal = document.getElementById("exampleModal");            
             
-            setPageList();
-                
-            let pagesCount = JSON.parse(localStorage.getItem('maxPageCount'));           
+            init();
+
+            let pagesCount = JSON.parse(localStorage.getItem('maxPageCount'));
+            printPagesElement(pagesCount);
+            document.getElementById(pageNum).closest('li').classList.add('active');                      
                        
             //переключение страниц
             pages.addEventListener('click', function(event) {
                 let activePage = document.querySelector('.page-item.active');
+                let chosenPage = event.target.id;
                 
-                if (event.target.id === 'prev') {
-                    let newID = +activePage.firstElementChild.id - 1;
-                    if (newID !== 1) {
-                        toggleActiveStatus(activePage, newID);                        
+                if (chosenPage === 'prev') {
+                    chosenPage = +activePage.firstElementChild.id - 1;
+                    console.log(typeof(chosenPage));
+                    //let newID = +activePage.firstElementChild.id - 1;
+                    if (chosenPage !== 1) {
+                        toggleActiveStatus(activePage, chosenPage);                        
                     } else {
-                        toggleActiveStatus(activePage, newID);
+                        toggleActiveStatus(activePage, chosenPage);
                         document.getElementById('prev').closest('li').classList.add('disabled');                        
-                    }
-                    loadPageData(newID);
-                    savePageNumber(newID);
+                    }                    
                 }
-                if (event.target.id === 'next') {
-                    let newID = +activePage.firstElementChild.id + 1;
-                    if (newID === pagesCount) {
-                        toggleActiveStatus(activePage, newID);
+                if (chosenPage === 'next') {
+                    chosenPage = +activePage.firstElementChild.id + 1;
+                    console.log(typeof(chosenPage));
+                    if (chosenPage === pagesCount) {                        
+                        toggleActiveStatus(activePage, chosenPage);
                         document.getElementById('next').closest('li').classList.add('disabled');
                     } else {
-                        toggleActiveStatus(activePage, newID);
+                        toggleActiveStatus(activePage, chosenPage);
                         document.getElementById('prev').closest('li').classList.remove('disabled');
-                    }
-                    loadPageData(newID);                    
-                    savePageNumber(newID);            
+                    }            
                 }
-                if (event.target.id > '1' && +event.target.id < pagesCount) {
-                    toggleActiveStatus(activePage, +event.target.id);
+                if (chosenPage > '1' && +chosenPage < pagesCount) {
+                    toggleActiveStatus(activePage, +chosenPage);
                     document.getElementById('next').closest('li').classList.remove('disabled');
                     document.getElementById('prev').closest('li').classList.remove('disabled');
-                    loadPageData(+event.target.id);
-                    savePageNumber(+event.target.id); 
                 }
-                if (+event.target.id === pagesCount) {
-                    toggleActiveStatus(activePage, +event.target.id);
+                if (+chosenPage === pagesCount) {
+                    toggleActiveStatus(activePage, +chosenPage);
                     document.getElementById('next').closest('li').classList.add('disabled');
-                    document.getElementById('prev').closest('li').classList.remove('disabled');
-                    loadPageData(+event.target.id);
-                    savePageNumber(+event.target.id);  
+                    document.getElementById('prev').closest('li').classList.remove('disabled');;  
                 }
-                if (event.target.id === '1') {
-                    toggleActiveStatus(activePage, +event.target.id);
+                if (chosenPage === '1') {
+                    toggleActiveStatus(activePage, +chosenPage);
                     document.getElementById('next').closest('li').classList.remove('disabled');
                     document.getElementById('prev').closest('li').classList.add('disabled');
-                    loadPageData(+event.target.id);
-                    savePageNumber(+event.target.id); 
                 }
+                loadPageData(+chosenPage);
+                savePageNumber(+chosenPage);
             });
 
             //нажатие кнопки Details
             cardsList.addEventListener('click', function(e) {
-                if (event.target.id = 'btnDeatails') {
+                if (event.target.id === 'btnDeatails') {
                     let btnID = event.target.closest('div').getAttribute('data-id');
-                    let pageNumber = localStorage.getItem('currentPageNumbID');
                     let cardBody = document.getElementById('modalBody');
-                    getUserData(btnID);
-                                       
+                    getUserData(btnID);                                      
                     
                     let modalUserName = document.getElementById('exampleModalLabel'); 
-                    //console.log(usersInfo[userID])                  
+                    console.log(usersInfo[userID])                  
                     modalUserName.textContent = usersInfo[btnID].name;
                     cardBody.innerHTML = '';
                     
@@ -382,7 +388,9 @@
                 }                
             });
                            
-                
+            window.addEventListener('unload', function() {
+                localStorage.clear();
+            })    
 
         </script>
     </body>
