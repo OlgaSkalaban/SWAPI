@@ -386,8 +386,8 @@
                     }            
                 }
                 toggleActiveStatus(activePage, +chosenPage);
-                if (search.value) {
-                    loadSearchData(search.value, +chosenPage);
+                if (lookup) {
+                    loadSearchData(lookup, +chosenPage);
                 } else {
                     loadPageData(+chosenPage);
                     savePageNumber(+chosenPage);
@@ -422,15 +422,12 @@
             search.addEventListener('submit', function(event) {                
                 event.preventDefault();
                 let lookup = searchField.value;
-                console.log(lookup);
+                //console.log(lookup);
                 cardsList.innerHTML = '';
                 pages.innerHTML = '';
                 usersInfo.length = 0;
                 pageList.length = 0;                
-                searchCharacters(lookup);
-                // if (event.keyCode === 13) {                    
-                    
-                // }                
+                searchCharacters(lookup);                                
             });
         </script>
     </body>
