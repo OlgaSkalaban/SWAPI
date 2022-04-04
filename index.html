@@ -419,6 +419,7 @@
 
             //search
             search.addEventListener('keydown', function(event) {
+                event.preventDefault();
                 if (event.keyCode === 13) {
                     let lookup = search.value;
                     cardsList.innerHTML = '';
