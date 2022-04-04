@@ -218,7 +218,8 @@
             }
             
             function init() {
-                let pageNum = localStorage.getItem('currentPageNumb') || 1;                
+                let pageNum = localStorage.getItem('currentPageNumb') || 1;
+                console.log(pageNum);                
                 loadData('', pageNum);                
             } 
 
@@ -349,25 +350,22 @@
                 usersInfo.length = 0;
                 pageList.length = 0;
                 pages.innerHTML = '';
-                console.log(`Поисковый запрос: ${req}`);
-                console.log(typeof(req));
-                console.log(`Номер страницы: ${pageNumb}`);
+                let serverReq = '';
+                let respData = '';
                 try {
                     // переключение страниц в поисковом запросе
-                    if ( (req) & pageNumb > 1) {
-                        let serverReq = await fetch(`https://swapi.dev/api/people/?search=${req}&page=${pageNumb}`);
+                    if ( (req) && +pageNumb > 1) {
+                        serverReq = await fetch(`https://swapi.dev/api/people/?search=${req}&page=${pageNumb}`);
                     // поисковый запрос    
                     }
-                    if ( (req) & (pageNumb === 'undefined') ) {
-                        let serverReq = await fetch(`https://swapi.dev/api/people/?search=${req}`);
+                    if ( (req) && (!pageNumb) ) {
+                        serverReq = await fetch(`https://swapi.dev/api/people/?search=${req}`);
                     // загрузка страниц
                     }
-                    if ( (!req) & (pageNumb >= 1) ) {
-                        let serverReq = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
-                    }
-                    //let serverReq = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
-                    const respData = await serverReq.json();
-                    console.log(respData);
+                    if ( (req.length === 0) && (+pageNumb >= 1) ) {
+                        serverReq = await fetch(`https://swapi.dev/api/people/?page=${pageNumb}`);
+                    } 
+                    respData = await serverReq.json();
                     const pageCount = Math.ceil(+respData.count/10); 
                     //localStorage.setItem('maxPageCount', JSON.stringify(pageCount));           
                     if (respData.results.length > 0) {
@@ -470,7 +468,7 @@
                 // pages.innerHTML = '';
                 // usersInfo.length = 0;
                 // pageList.length = 0;                
-                loadData(lookup);                                
+                loadData(lookup, '');                                
             });
         </script>
     </body>
