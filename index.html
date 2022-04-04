@@ -418,9 +418,9 @@
             });
 
             //search
-            search.addEventListener('keydown', function(event) {
-                event.preventDefault();
+            search.addEventListener('keydown', function(event) {                
                 if (event.keyCode === 13) {
+                    event.preventDefault();
                     let lookup = search.value;
                     cardsList.innerHTML = '';
                     pages.innerHTML = '';
