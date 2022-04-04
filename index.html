@@ -129,7 +129,6 @@
             "use strict"
             //отрисовка элемента нумерации страниц
             function printPagesElement(currentPage, pageCount) {
-                //let pageCount = JSON.parse(localStorage.getItem('maxPageCount'));
                 if (pageCount === 1) {
                     pageList.push(`
                     <li class="page-item">
@@ -201,7 +200,7 @@
             function showCards() {
                 let cardsList = document.getElementById('cards-list');
                 cardsList.innerHTML = '';
-
+                
                 cardsList.innerHTML = usersInfo.map(elem => `
                 <div class="col-md-3">
                     <div class="card mb-3 shadow-sm">
@@ -315,30 +314,35 @@
                 }
             }
             
-            async function searchCharacters(arr, req) {
-                cardsList.innerHTML = '<h5>SEARCH...</h5>';
-                let serverReq = await fetch('https://swapi.dev/api/people/');
+            async function searchCharacters(req) {                
+                let serverReq = await fetch(`https://swapi.dev/api/people/?search=${req}`);
                 let response = await serverReq.json();
-                for (let i=1; i<=response.count; i++) {
-                    let serReq = await fetch(`https://swapi.dev/api/people/${i}/`);
-                    if (serReq.ok) {
-                        let resp = await serReq.json();
-                        let name = resp.name.toUpperCase();
-                        console.log(name);
-                        if (name.includes(req)) {
-                            arr.push(resp);
-                            console.log(arr);
-                        }                
-                    }
-                }
-                if (arr.length > 0) {
-                    let searchPageCount = Math.ceil(+arr.length/10);
+                usersInfo = response.results;         
+                if (usersInfo.length > 0) {
+                    let searchPageCount = Math.ceil(+response.count/10);
                     printPagesElement(1, searchPageCount);
                     showCards();
                 } else {
                     cardsList.innerHTML = '<h5>No results :(</h5>';
+                }                    
+            }
+
+            async function loadSearchData(req, pageNumb) {
+                cardsList.innerHTML = '';
+                usersInfo.length = 0;
+                pageList.length = 0;
+                pages.innerHTML = '';
+                try {
+                    const responsePage = await fetch(`https://swapi.dev/api/people/?search=${req}&page=${pageNumb}`);
+                    const pageData = await responsePage.json();
+                    const pageCount = Math.ceil(+pageData.count/10);
+                    //localStorage.setItem('maxPageCount', JSON.stringify(pageCount)); 
+                    usersInfo = pageData.results;
+                    printPagesElement(pageNumb, pageCount);
+                    showCards();                               
+                } catch(err) {
+                    alert(err)
                 }
-                    
             }
             
             
@@ -382,8 +386,12 @@
                     }            
                 }
                 toggleActiveStatus(activePage, +chosenPage);
-                loadPageData(+chosenPage);
-                savePageNumber(+chosenPage);
+                if (search.value) {
+                    loadSearchData(search.value, +chosenPage);
+                } else {
+                    loadPageData(+chosenPage);
+                    savePageNumber(+chosenPage);
+                }
             });
 
             //нажатие кнопки Details
@@ -412,13 +420,12 @@
             //search
             search.addEventListener('keydown', function(event) {
                 if (event.keyCode === 13) {
-                let lookup = this.value.toUpperCase();
-                //console.log(lookup);
-                cardsList.innerHTML = '';
-                usersInfo.length = 0;
-                pageList.length = 0;
-                pages.innerHTML = '';
-                searchCharacters(usersInfo, lookup);                
+                    let lookup = search.value;
+                    cardsList.innerHTML = '';
+                    pages.innerHTML = '';
+                    usersInfo.length = 0;
+                    pageList.length = 0;                
+                    searchCharacters(lookup);                
                 }
             });
                            
