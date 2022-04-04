@@ -386,8 +386,8 @@
                     }            
                 }
                 toggleActiveStatus(activePage, +chosenPage);
-                if (lookup) {
-                    loadSearchData(lookup, +chosenPage);
+                if (searchField.value) {
+                    loadSearchData(searchField.value, +chosenPage);
                 } else {
                     loadPageData(+chosenPage);
                     savePageNumber(+chosenPage);
