@@ -418,16 +418,18 @@
             });
 
             //search
-            search.addEventListener('keydown', function(event) {                
-                if (event.keyCode === 13) {
-                    //event.preventDefault();
-                    let lookup = search.value;
-                    cardsList.innerHTML = '';
-                    pages.innerHTML = '';
-                    usersInfo.length = 0;
-                    pageList.length = 0;                
-                    searchCharacters(lookup);                
-                }
+            search.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+                let lookup = search.value;
+                cardsList.innerHTML = '';
+                pages.innerHTML = '';
+                usersInfo.length = 0;
+                pageList.length = 0;                
+                searchCharacters(lookup);                
+                // if (event.keyCode === 13) {
+                    
+                                   
+                // }
             });
         </script>
     </body>
