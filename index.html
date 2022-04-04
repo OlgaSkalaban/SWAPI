@@ -135,6 +135,9 @@
                     <li class="page-item">
                         <a id="${pageCount}" class="page-link" href="#">${pageCount}</a>
                     </li>`);
+                    let str = pageList.join('');
+                    pages.innerHTML = str;
+                    document.getElementById(currentPage).closest('li').classList.add('active');
                 } else {
                     for (let i = 1; i <= pageCount; i++) {
                     pageList.push(`
@@ -150,22 +153,22 @@
                     <li class="page-item">
                         <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
                     </li>`);
-                }
 
-                let str = pageList.join('');
-                pages.innerHTML = str;
-                //alert(typeof(pageCount));
-                if (+currentPage === 1) {
-                    document.getElementById('next').closest('li').classList.remove('disabled');
-                    document.getElementById('prev').closest('li').classList.add('disabled');
-                } else if (+currentPage === pageCount) {
-                    document.getElementById('next').closest('li').classList.add('disabled');
-                    document.getElementById('prev').closest('li').classList.remove('disabled');
-                } else {
-                    document.getElementById('next').closest('li').classList.remove('disabled');
-                    document.getElementById('prev').closest('li').classList.remove('disabled');
+                    let str = pageList.join('');
+                    pages.innerHTML = str;
+                    //alert(typeof(pageCount));
+                    if (+currentPage === 1) {
+                        document.getElementById('next').closest('li').classList.remove('disabled');
+                        document.getElementById('prev').closest('li').classList.add('disabled');
+                    } else if (+currentPage === pageCount) {
+                        document.getElementById('next').closest('li').classList.add('disabled');
+                        document.getElementById('prev').closest('li').classList.remove('disabled');
+                    } else {
+                        document.getElementById('next').closest('li').classList.remove('disabled');
+                        document.getElementById('prev').closest('li').classList.remove('disabled');
+                    }
+                    document.getElementById(currentPage).closest('li').classList.add('active');                
                 }
-                document.getElementById(currentPage).closest('li').classList.add('active');
             }
             
             async function loadPageData(pageNumb) {
@@ -419,9 +422,9 @@
                 }
             });
                            
-            // window.addEventListener('unload', function() {
-            //     localStorage.clear();
-            // })    
+            window.addEventListener('unload', function() {
+                localStorage.clear();
+            })    
 
         </script>
     </body>
