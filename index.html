@@ -129,21 +129,28 @@
             "use strict"
             //отрисовка элемента нумерации страниц
             function printPagesElement(currentPage, pageCount) {
-                //let pageCount = JSON.parse(localStorage.getItem('maxPageCount'));               
-                for (let i = 1; i <= pageCount; i++) {
+                //let pageCount = JSON.parse(localStorage.getItem('maxPageCount'));
+                if (pageCount === 1) {
+                    pageList.push(`
+                    <li class="page-item">
+                        <a id="${pageCount}" class="page-link" href="#">${pageCount}</a>
+                    </li>`);
+                } else {
+                    for (let i = 1; i <= pageCount; i++) {
                     pageList.push(`
                     <li class="page-item">
                         <a id="${i}" class="page-link" href="#">${i}</a>
                     </li>`);    
-                };
-                pageList.push(`
-                <li class="page-item">
-                    <a id="next" class="page-link" href="#">NEXT</a>
-                </li>`);
-                pageList.unshift(`
-                <li class="page-item">
-                    <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
-                </li>`);
+                    };
+                    pageList.push(`
+                    <li class="page-item">
+                        <a id="next" class="page-link" href="#">NEXT</a>
+                    </li>`);
+                    pageList.unshift(`
+                    <li class="page-item">
+                        <a id="prev" class="page-link" href="#" tabindex="-1" aria-disabled="true">PREV</a>
+                    </li>`);
+                }
 
                 let str = pageList.join('');
                 pages.innerHTML = str;
@@ -305,6 +312,33 @@
                 }
             }
             
+            async function searchCharacters(arr, req) {
+                cardsList.innerHTML = '<h5>SEARCH...</h5>';
+                let serverReq = await fetch('https://swapi.dev/api/people/');
+                let response = await serverReq.json();
+                for (let i=1; i<=response.count; i++) {
+                    let serReq = await fetch(`https://swapi.dev/api/people/${i}/`);
+                    if (serReq.ok) {
+                        let resp = await serReq.json();
+                        let name = resp.name.toUpperCase();
+                        console.log(name);
+                        if (name.includes(req)) {
+                            arr.push(resp);
+                            console.log(arr);
+                        }                
+                    }
+                }
+                if (arr.length > 0) {
+                    let searchPageCount = Math.ceil(+arr.length/10);
+                    printPagesElement(1, searchPageCount);
+                    showCards();
+                } else {
+                    cardsList.innerHTML = '<h5>No results :(</h5>';
+                }
+                    
+            }
+            
+            
             //////  main  //////
 
             let usersInfo = [];
@@ -375,10 +409,13 @@
             //search
             search.addEventListener('keydown', function(event) {
                 if (event.keyCode === 13) {
-                let lookup = this.value;
-                console.log(this.value);
+                let lookup = this.value.toUpperCase();
+                //console.log(lookup);
+                cardsList.innerHTML = '';
                 usersInfo.length = 0;
-                
+                pageList.length = 0;
+                pages.innerHTML = '';
+                searchCharacters(usersInfo, lookup);                
                 }
             });
                            
