@@ -52,7 +52,7 @@
               <div class="collapse navbar-collapse" id="navbarsExample07XL">
                 <ul class="navbar-nav mr-auto"></ul>
                 <form class="form-inline my-2 my-md-0">
-                  <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+                  <input id="searchField" class="form-control" type="text" placeholder="Search" aria-label="Search">
                 </form>
               </div>
             </div>
@@ -418,9 +418,10 @@
             });
 
             //search
+            let searchField = document.getElementById('searchField');
             search.addEventListener('submit', function(event) {                
                 event.preventDefault();
-                let lookup = this.value;
+                let lookup = searchField.value;
                 console.log(lookup);
                 cardsList.innerHTML = '';
                 pages.innerHTML = '';
