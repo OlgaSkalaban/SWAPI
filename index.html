@@ -353,7 +353,7 @@
             let pages = document.getElementById('pages');
             let cardsList = document.getElementById('cards-list');
             let exampleModal = document.getElementById("exampleModal");
-            let search = document.querySelector('input');          
+            let search = document.querySelector('form');          
             
             init();
 
@@ -421,6 +421,7 @@
             search.addEventListener('submit', function(event) {                
                 event.preventDefault();
                 let lookup = this.value;
+                console.log(lookup);
                 cardsList.innerHTML = '';
                 pages.innerHTML = '';
                 usersInfo.length = 0;
