@@ -419,8 +419,8 @@
 
             //search
             search.addEventListener('submit', function(event) {                
-                //event.preventDefault();
-                let lookup = search.value;
+                event.preventDefault();
+                let lookup = this.value;
                 cardsList.innerHTML = '';
                 pages.innerHTML = '';
                 usersInfo.length = 0;
